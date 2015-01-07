@@ -1,101 +1,69 @@
-/* 
- * Copyright 2005 - 2009 Terracotta, Inc. 
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
- * use this file except in compliance with the License. You may obtain a copy 
- * of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations 
- * under the License.
- * 
- */
-
 package org.quartz.examples.example1;
-
-import static org.quartz.DateBuilder.evenMinuteDate;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Date;
 
+import org.quartz.DateBuilder;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.examples.log.Logger;
 import org.quartz.impl.StdSchedulerFactory;
 
-/**
- * This Example will demonstrate how to start and shutdown the Quartz 
- * scheduler and how to schedule a job to run in Quartz.
- * 
- * @author Bill Kratzer
- */
 public class SimpleExample {
 
-    
-    public void run() throws Exception {
+	public void run() throws Exception {
 
-        Logger.info("------- Initializing ----------------------");
+		Logger.info("------- Initializing ----------------------");
 
-        // First we must get a reference to a scheduler
-        SchedulerFactory sf = new StdSchedulerFactory();
-        Scheduler sched = sf.getScheduler();
+		SchedulerFactory sf = new StdSchedulerFactory();
+		Scheduler sched = sf.getScheduler();
 
-        Logger.info("------- Initialization Complete -----------");
+		Logger.info("------- Initialization Complete -----------");
 
-        // computer a time that is on the next round minute
-        Date runTime = evenMinuteDate(new Date());
+		// computer a time that is on the next round minute
+		Date runTime = DateBuilder.evenMinuteDate(new Date());
 
-        Logger.info("------- Scheduling Job  -------------------");
+		Logger.info("------- Scheduling Job  -------------------");
 
-        // define the job and tie it to our HelloJob class
-        JobDetail job = newJob(HelloJob.class)
-            .withIdentity("job1", "group1")
-            .build();
-        
-        // Trigger the job to run on the next round minute
-        Trigger trigger = newTrigger()
-            .withIdentity("trigger1", "group1")
-            .startAt(runTime)
-            .build();
-        
-        // Tell quartz to schedule the job using our trigger
-        sched.scheduleJob(job, trigger);
-        Logger.info(job.getKey() + " will run at: " + runTime);  
+		// define the job and tie it to our HelloJob class
+		JobDetail job = JobBuilder.newJob(HelloJob.class).withIdentity("job1", "group1").build();
 
-        // Start up the scheduler (nothing can actually run until the 
-        // scheduler has been started)
-        sched.start();
+		// Trigger the job to run on the next round minute
+		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("trigger1", "group1").startAt(runTime).build();
 
-        Logger.info("------- Started Scheduler -----------------");
+		// Tell quartz to schedule the job using our trigger
+		sched.scheduleJob(job, trigger);
+		Logger.info(job.getKey() + " will run at: " + runTime);
 
-        // wait long enough so that the scheduler as an opportunity to 
-        // run the job!
-        Logger.info("------- Waiting 65 seconds... -------------");
-        try {
-            // wait 65 seconds to show job
-            Thread.sleep(65L * 1000L); 
-            // executing...
-        } catch (Exception e) {
-        }
+		// Start up the scheduler (nothing can actually run until the
+		// scheduler has been started)
+		sched.start();
 
-		// shut down the scheduler
-        Logger.info("------- Shutting Down ---------------------");
-        sched.shutdown(true);
-        Logger.info("------- Shutdown Complete -----------------");
-    }
+		Logger.info("------- Started Scheduler -----------------");
 
-    public static void main(String[] args) throws Exception {
+		// wait long enough so that the scheduler as an opportunity to
+		// run the job!
+		Logger.info("------- Waiting 65 seconds... -------------");
+		try {
+			// wait 65 seconds to show job
+			Thread.sleep(65L * 1000L);
+			// executing...
+		} catch (Exception e) {
+		}
 
-        SimpleExample example = new SimpleExample();
-        example.run();
+		Logger.info("------- Shutting Down ---------------------");
+		sched.shutdown(true);
+		Logger.info("------- Shutdown Complete -----------------");
+	}
 
-    }
+	public static void main(String[] args) throws Exception {
+
+		SimpleExample example = new SimpleExample();
+		example.run();
+
+	}
 
 }
