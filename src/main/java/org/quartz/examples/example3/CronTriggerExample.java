@@ -26,7 +26,6 @@ public class CronTriggerExample {
 		Scheduler sched = sf.getScheduler();
 
 
-		// jobs can be scheduled before sched.start() has been called
 
 		// job 1 will run every 20 seconds
 		JobDetail job = newJob(SimpleJob.class).withIdentity("job1", "group1").build();
